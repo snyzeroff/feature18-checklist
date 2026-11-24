@@ -7,33 +7,26 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
-/* Layout: one column; a sticky progress header, a shared "step 0" strip, then two group lanes side by side (stacked on phones), each with three person cards. */
+/* Layout: one column; sticky progress header, a shared "step 0" strip, then two group lanes (one shared task list per group). Single black theme, no colour accents. */
 :root {
-  --bg: #f6f7f5;
-  --surface: #ffffff;
-  --fg: #17201c;
-  --muted: #5d6b64;
-  --line: #dde3df;
-  --pine: #1f6b4f;        /* group A + accent */
-  --pine-soft: #e3f0ea;
-  --berry: #a3324a;       /* group B */
-  --berry-soft: #f6e4e8;
-  --gold: #9a6b10;
-  --gold-soft: #f7edd8;
-  --done: #2f7d32;
-  --code-bg: #eef1ef;
+  --bg: #0a0a0a;
+  --surface: #111111;
+  --fg: #ededed;
+  --muted: #8b8b8b;
+  --line: #242424;
+  --pine: #f2f2f2;        /* group A: white */
+  --pine-soft: #161616;
+  --berry: #a8a8a8;       /* group B: grey */
+  --berry-soft: #141414;
+  --gold: #d6d6d6;
+  --gold-soft: #181818;
+  --done: #f2f2f2;
+  --code-bg: #1b1b1b;
   --f-display: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
   --f-body: "Inter", "Segoe UI", system-ui, sans-serif;
   --f-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+  color-scheme: dark;
 }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg: #111614; --surface: #19201d; --fg: #e6ece8; --muted: #9aa8a1; --line: #2a3430;
-  --pine: #5fc39a; --pine-soft: #1c3329; --berry: #ec8aa0; --berry-soft: #3a1f27;
-  --gold: #e2b65c; --gold-soft: #3a2f17; --done: #7fd384; --code-bg: #222b27; color-scheme: dark } }
-:root[data-theme="dark"] {
-  --bg: #111614; --surface: #19201d; --fg: #e6ece8; --muted: #9aa8a1; --line: #2a3430;
-  --pine: #5fc39a; --pine-soft: #1c3329; --berry: #ec8aa0; --berry-soft: #3a1f27;
-  --gold: #e2b65c; --gold-soft: #3a2f17; --done: #7fd384; --code-bg: #222b27; color-scheme: dark }
 
 * { box-sizing: border-box }
 body { background: var(--bg); color: var(--fg); font: 15px/1.55 var(--f-body);
@@ -55,7 +48,7 @@ header.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; b
 .sync { font-size: 0.8rem; display: inline-flex; gap: 6px; align-items: center; color: var(--muted) }
 .sync i { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); display: inline-block }
 .sync[data-state="live"] i { background: var(--done) }
-.sync[data-state="local"] i { background: var(--gold) }
+.sync[data-state="local"] i { background: var(--muted); outline: 1px solid var(--fg) }
 .bars { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px }
 .bar { display: grid; gap: 4px; font-size: 0.8rem }
 .bar .lbl { display: flex; justify-content: space-between; gap: 8px; font-variant-numeric: tabular-nums }
@@ -68,8 +61,8 @@ header.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; b
 .rule { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; display: grid; gap: 4px; min-width: 0 }
 .rule b { font-family: var(--f-display) }
 .timeline { display: flex; flex-wrap: wrap; gap: 8px }
-.when { font-size: 0.82rem; background: var(--gold-soft); color: var(--fg); border-radius: 999px; padding: 3px 10px }
-.when b { color: var(--gold) }
+.when { font-size: 0.82rem; border: 1px solid var(--line); background: var(--gold-soft); color: var(--fg); border-radius: 999px; padding: 3px 10px }
+.when b { color: var(--fg) }
 
 .lanes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; align-items: start }
 .lane { display: grid; gap: 14px; min-width: 0 }
@@ -120,7 +113,7 @@ th { font: 600 0.72rem var(--f-body); letter-spacing: 0.06em; text-transform: up
 .names button { font: 600 0.95rem var(--f-display); padding: 12px 6px; border-radius: 8px; cursor: pointer;
   border: 1px solid var(--line); background: var(--bg); color: var(--fg) }
 .names button.a { border-color: var(--pine) } .names button.b { border-color: var(--berry) }
-.names button:hover, .names button:focus-visible { background: var(--pine-soft); outline: none }
+.names button:hover, .names button:focus-visible { background: var(--fg); color: var(--bg); outline: none }
 .tests { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; min-width: 0 }
 .tests > summary { cursor: pointer; padding: 16px; display: grid; gap: 4px; list-style: none }
 .tests > summary::-webkit-details-marker { display: none }
@@ -144,8 +137,8 @@ details.test[open] > summary { border-bottom: 1px solid var(--line) }
 .test-body { padding: 12px; display: grid; gap: 8px }
 .test-body ul { margin: 0; padding-left: 20px }
 .calc { font: 0.85rem/1.7 var(--f-mono); background: var(--code-bg); border-radius: 6px; padding: 10px 12px; overflow-x: auto }
-.calc .bad { color: var(--berry); font-weight: 600 }
-.tip { font-size: 0.88rem; background: var(--gold-soft); border-radius: 6px; padding: 8px 10px }
+.calc .bad { color: var(--fg); font-weight: 600; text-decoration: underline }
+.tip { font-size: 0.88rem; border-left: 2px solid var(--muted); background: var(--gold-soft); border-radius: 6px; padding: 8px 10px }
 @media (max-width: 600px) { .vocab dl { grid-template-columns: minmax(0, 1fr) } .vocab dd { margin-bottom: 6px } }
 @media (max-width: 820px) { .lanes { grid-template-columns: minmax(0, 1fr) } .bars { grid-template-columns: minmax(0, 1fr) } h1 { font-size: 1.6rem } }
 @media (prefers-reduced-motion: reduce) { .fill { transition: none } }
@@ -189,7 +182,7 @@ details.test[open] > summary { border-bottom: 1px solid var(--line) }
   </header>
 
   <section class="intro">
-    <p><b>Le principe du partage.</b> Groupe A écrit les fonctions de calcul (pas de base de données, pas de Streamlit). Groupe B écrit tout ce qui touche la base et la page. Chacun a ses propres fonctions ou ses propres fichiers, donc personne ne modifie les mêmes lignes.</p>
+    <p><b>Le principe.</b> Groupe A écrit les fonctions de calcul (pas de base de données, pas de Streamlit). Groupe B écrit tout ce qui touche la base et la page. Dans chaque groupe, on ne se répartit pas les tâches : les 3 avancent ensemble sur la même liste, dans l'ordre, donc personne n'attend personne.</p>
     <div class="timeline">
       <span class="when"><b>Aujourd'hui</b> squelette sur Maxence, puis branche groupe-a</span>
       <span class="when"><b>Mercredi soir</b> tous les tests de la feature verts</span>
@@ -198,7 +191,8 @@ details.test[open] > summary { border-bottom: 1px solid var(--line) }
     </div>
     <div class="rules">
       <div class="rule"><b>Branches</b><span class="muted">Groupe B sur <code>Maxence</code>, groupe A sur <code>groupe-a</code> (créée à partir de <code>Maxence</code>). Groupe A fait des PR de <code>groupe-a</code> vers <code>Maxence</code>, petites et souvent. La PR finale part de <code>Maxence</code>.</span></div>
-      <div class="rule"><b>Pas de conflit</b><span class="muted">Dans <code>logic.py</code>, tu ne touches que le corps de tes fonctions. La page est coupée en 3 fichiers. <code>git pull</code> avant de commencer, à chaque fois.</span></div>
+      <div class="rule"><b>Travailler à 3</b><span class="muted">Un seul ordinateur code, les deux autres relisent et proposent. On change de clavier toutes les 20 minutes ou à chaque test qui passe. Celui qui code commit et push avant de passer la main.</span></div>
+      <div class="rule"><b>Pas de conflit</b><span class="muted">Groupe A ne touche qu'aux fonctions de calcul de <code>logic.py</code>, groupe B au reste. <code>git pull</code> à chaque changement de clavier.</span></div>
       <div class="rule"><b>Périmètre</b><span class="muted">Seulement <code>app/features/18_weighted_draw/</code> et <code>tests/test_18_weighted_draw.py</code>. Rien d'autre ne change.</span></div>
       <div class="rule"><b>Secret</b><span class="muted">La page ne montre jamais qui offre à qui. Le bouton enregistre le tirage, il ne l'affiche pas.</span></div>
     </div>
@@ -241,7 +235,7 @@ details.test[open] > summary { border-bottom: 1px solid var(--line) }
         </dl>
       </div>
 
-      <h3 class="part b">Base de données <span class="muted">· Maxence</span></h3>
+      <h3 class="part b">Base de données <span class="muted">· groupe B</span></h3>
 
       <details class="test">
         <summary><code>test_missing_affinities_are_zero</code><span class="fn">get_affinities</span></summary>
@@ -331,7 +325,7 @@ details.test[open] > summary { border-bottom: 1px solid var(--line) }
             <li>son score total est <b>supérieur ou égal</b> à celui du glouton.</li>
           </ul>
           <p class="tip"><b>Méthode :</b> <code>itertools.permutations(ids)</code> donne tous les ordres des receveurs. On garde ceux où personne ne tombe sur soi-même, on calcule <code>total_score</code>, on garde le plus grand. Avec 6 personnes : 720 ordres, c'est instantané.</p>
-          <p class="tip"><b>Dépend de :</b> <code>greedy_draw</code> et <code>total_score</code> de Paul. Ce test reste rouge tant qu'ils ne sont pas faits.</p>
+          <p class="tip"><b>Dépend de :</b> <code>greedy_draw</code> et <code>total_score</code>. Faites-les avant <code>best_draw</code>.</p>
         </div>
       </details>
 
@@ -366,19 +360,19 @@ details.test[open] > summary { border-bottom: 1px solid var(--line) }
 
   <section class="contract">
     <h2>Le contrat entre les deux groupes</h2>
-    <p class="muted">Ces signatures sont figées dans le squelette. Groupe B peut appeler les fonctions de Groupe A dès le début : elles renvoient une erreur tant qu'elles ne sont pas finies, mais la page se construit quand même.</p>
+    <p class="muted">Ces signatures sont figées dans le squelette. Groupe B peut construire la page dès le début avec un faux dictionnaire <code>scores</code> écrit à la main, puis brancher les vraies fonctions du groupe A quand elles sont fusionnées.</p>
     <div class="tbl"><table>
       <thead><tr><th>Fonction</th><th>Rôle</th><th>Qui</th></tr></thead>
       <tbody>
-        <tr><td><code>create_tables(db)</code></td><td>Crée la table <code>weighted_draw_affinities</code></td><td><span class="dot b"></span>Maxence</td></tr>
-        <tr><td><code>set_affinity(db, giver_id, receiver_id, score)</code></td><td>Score 0 à 3, remplace l'ancien. <code>ValueError</code> si hors limites ou soi-même</td><td><span class="dot b"></span>Maxence</td></tr>
-        <tr><td><code>get_affinities(db, group_id)</code></td><td><code>{(giver, receiver): score}</code> pour chaque paire ordonnée, 0 si pas noté</td><td><span class="dot b"></span>Maxence</td></tr>
-        <tr><td><code>save_draw(db, group_id, pairs)</code></td><td>Remplace le tirage du groupe dans <code>assignments</code></td><td><span class="dot b"></span>Maxence</td></tr>
-        <tr><td><code>total_score(pairs, scores)</code></td><td>Somme des scores des paires</td><td><span class="dot a"></span>Paul</td></tr>
-        <tr><td><code>greedy_draw(participant_ids, scores)</code></td><td>Glouton dans l'ordre de la liste, avec échange si le dernier reste seul</td><td><span class="dot a"></span>Paul</td></tr>
-        <tr><td><code>best_draw(participant_ids, scores)</code></td><td>Toutes les permutations sans point fixe. <code>ValueError</code> au-delà de 8</td><td><span class="dot a"></span>Augustin</td></tr>
-        <tr><td><code>random_score(participant_ids, scores, rng=random, runs=200)</code></td><td>Score moyen de tirages au hasard, 0 sans scores</td><td><span class="dot a"></span>PE</td></tr>
-        <tr><td><code>average_satisfaction(pairs, scores)</code></td><td>Score moyen par personne d'un tirage (pour « aller plus loin »)</td><td><span class="dot a"></span>PE</td></tr>
+        <tr><td><code>create_tables(db)</code></td><td>Crée la table <code>weighted_draw_affinities</code></td><td><span class="dot b"></span>Groupe B</td></tr>
+        <tr><td><code>set_affinity(db, giver_id, receiver_id, score)</code></td><td>Score 0 à 3, remplace l'ancien. <code>ValueError</code> si hors limites ou soi-même</td><td><span class="dot b"></span>Groupe B</td></tr>
+        <tr><td><code>get_affinities(db, group_id)</code></td><td><code>{(giver, receiver): score}</code> pour chaque paire ordonnée, 0 si pas noté</td><td><span class="dot b"></span>Groupe B</td></tr>
+        <tr><td><code>save_draw(db, group_id, pairs)</code></td><td>Remplace le tirage du groupe dans <code>assignments</code></td><td><span class="dot b"></span>Groupe B</td></tr>
+        <tr><td><code>total_score(pairs, scores)</code></td><td>Somme des scores des paires</td><td><span class="dot a"></span>Groupe A</td></tr>
+        <tr><td><code>greedy_draw(participant_ids, scores)</code></td><td>Glouton dans l'ordre de la liste, avec échange si le dernier reste seul</td><td><span class="dot a"></span>Groupe A</td></tr>
+        <tr><td><code>best_draw(participant_ids, scores)</code></td><td>Toutes les permutations sans point fixe. <code>ValueError</code> au-delà de 8</td><td><span class="dot a"></span>Groupe A</td></tr>
+        <tr><td><code>random_score(participant_ids, scores, rng=random, runs=200)</code></td><td>Score moyen de tirages au hasard, 0 sans scores</td><td><span class="dot a"></span>Groupe A</td></tr>
+        <tr><td><code>average_satisfaction(pairs, scores)</code></td><td>Score moyen par personne d'un tirage (pour « aller plus loin »)</td><td><span class="dot a"></span>Groupe A</td></tr>
       </tbody>
     </table></div>
   </section>
@@ -401,85 +395,56 @@ const PEOPLE = {
       tasks: [
         ["y1", "PE : créer le fork", "Fait : <code>snyzeroff/secret-santa</code>."],
         ["y2", "Maxence : créer la branche du groupe B", "Fait : branche <code>Maxence</code>, avec le dossier <code>18_weighted_draw</code>. C'est aussi la branche d'équipe : tout finit dedans."],
-        ["y3", "Maxence : pousser le squelette sur la branche Maxence", "<code>logic.py</code> avec les 9 fonctions du contrat (docstring + <code>raise NotImplementedError</code>), plus <code>ui_rating.py</code> et <code>ui_organizer.py</code> vides appelés par <code>page.py</code>. À faire avant l'étape suivante, sinon les deux groupes créent <code>logic.py</code> chacun de leur côté et ça fera un conflit."],
+        ["y3", "Maxence : pousser le squelette sur la branche Maxence", "<code>logic.py</code> avec les 9 fonctions du contrat (docstring + <code>raise NotImplementedError</code>). À faire avant l'étape suivante, sinon les deux groupes créent <code>logic.py</code> chacun de leur côté et ça fera un conflit."],
         ["y4", "PE : créer la branche du groupe A à partir de Maxence", "<code>git fetch origin</code> puis <code>git switch -c groupe-a origin/Maxence</code> puis <code>git push -u origin groupe-a</code>. Pas à partir de main."],
         ["y5", "Prévenir les 6 : « squelette en ligne »", "Groupe A travaille sur <code>groupe-a</code>, groupe B sur <code>Maxence</code>. <code>git pull</code> avant chaque session."]
       ] }
   ],
   a: [
-    { key: "paul", name: "Paul", ini: "P", role: "total_score + tirage glouton",
-      files: ["logic.py : total_score, greedy_draw"],
+    { key: "ga", name: "Groupe A", ini: "A", owners: ["Paul", "Augustin", "PE"], role: "Paul, Augustin, PE · tous ensemble, dans l'ordre",
+      files: ["logic.py : total_score, greedy_draw, best_draw, random_score, average_satisfaction", "branche groupe-a"],
       tasks: [
-        ["a1", "Lire les tests total_score et greedy, les expliquer en une phrase", "<code>test_total_score_adds_the_scores_of_the_pairs</code>, <code>test_greedy_takes_the_best_free_receiver</code>, <code>test_greedy_swaps_when_the_last_giver_is_left_alone</code>"],
-        ["a2", "Écrire total_score", "Une paire absente de <code>scores</code> compte 0 : <code>scores.get((g, r), 0)</code>."],
-        ["a3", "Écrire greedy_draw (cas normal)", "Chaque donneur, dans l'ordre de la liste, prend le receveur libre au meilleur score."],
-        ["a4", "Gérer le cas où le dernier reste seul avec lui-même", "Échanger son receveur avec celui d'un autre donneur. Le résultat doit toujours être un tirage valide."],
-        ["a5", "Moins de 2 personnes : ValueError", "Le dire à Hugo et Mats pour qu'ils l'attrapent dans la page."],
-        ["a6", "PR de groupe-a vers Maxence", "Les 3 tests passent."]
-      ] },
-    { key: "augustin", name: "Augustin", ini: "A", role: "Meilleur tirage + contre-exemple",
-      files: ["logic.py : best_draw", "tests : nouveau test contre-exemple"],
-      tasks: [
-        ["b1", "Lire les tests best_draw", "<code>test_best_draw_is_at_least_as_good_as_greedy</code>, <code>test_best_draw_refuses_more_than_8_people</code>"],
-        ["b2", "Écrire best_draw", "<code>itertools.permutations</code> des receveurs, ne garder que celles sans point fixe (personne ne s'offre à soi-même), garder le meilleur total."],
-        ["b3", "ValueError au-delà de 8 personnes", "Vérifier en premier, avant de lancer les permutations."],
-        ["b4", "Trouver un contre-exemple à 3 personnes", "Des scores où le glouton fait moins bien que best_draw. Le noter pour la démo."],
-        ["b5", "L'ajouter comme test dans tests/test_18_weighted_draw.py", "Ajouter seulement, ne pas modifier les tests existants. Attend que greedy de Paul soit mergé pour le lancer."],
-        ["b6", "PR de groupe-a vers Maxence", ""]
-      ] },
-    { key: "pe", name: "PE", ini: "PE", role: "Tirage au hasard + cas limites",
-      files: ["logic.py : random_score, average_satisfaction", "tests : cas limites"],
-      tasks: [
-        ["c1", "Lire test_random_score_is_zero_without_affinities", "Comprendre pourquoi on passe <code>random.Random(1)</code> : résultat reproductible."],
-        ["c2", "Écrire random_score", "<code>runs</code> tirages au hasard valides avec <code>rng</code>, moyenne de <code>total_score</code>. 0 quand <code>scores</code> est vide."],
-        ["c3", "Écrire average_satisfaction (aller plus loin)", "Score moyen reçu par personne pour un tirage. Aucun nom, juste un nombre. Hugo l'affiche."],
-        ["c4", "Ajouter des tests de cas limites", "2 personnes, ids non triés, scores vides, un seul score à 3. Ajouter seulement."],
-        ["c5", "Relire les PR de Paul et Augustin", "Lancer leurs tests en local avant d'approuver."],
-        ["c6", "PR de groupe-a vers Maxence", "Avant mercredi soir, pour que Mats ait les vraies fonctions dans la page."]
+        ["a1", "Lire ensemble les 6 tests de calcul", "Le menu « Les 10 tests expliqués » plus bas. Chacun redit un test avec ses mots."],
+        ["a2", "total_score", "Somme des <code>scores.get((g, r), 0)</code> pour chaque paire du tirage. À faire en premier : tout le reste s'en sert."],
+        ["a3", "greedy_draw, cas normal", "Chaque donneur, dans l'ordre de la liste, prend le receveur libre au meilleur score."],
+        ["a4", "greedy_draw, le dernier reste seul", "Échanger son receveur avec celui d'un autre donneur. Le tirage doit toujours être valide."],
+        ["a5", "Moins de 2 personnes : ValueError", "Pour <code>greedy_draw</code> et <code>best_draw</code>. Prévenir le groupe B pour qu'il l'attrape dans la page."],
+        ["a6", "random_score", "<code>runs</code> tirages valides avec <code>rng.shuffle</code>, moyenne de <code>total_score</code>. 0 quand <code>scores</code> est vide."],
+        ["a7", "best_draw", "<code>itertools.permutations</code>, sans point fixe, garder le meilleur total. <code>ValueError</code> au-delà de 8, testé en premier."],
+        ["a8", "Contre-exemple à 3 personnes, ajouté comme test", "Des scores où le glouton fait moins bien que <code>best_draw</code>. Ajouter un test, ne rien modifier d'autre. Sert pour la démo."],
+        ["a9", "average_satisfaction (aller plus loin)", "Score moyen reçu par personne pour un tirage. Un nombre, aucun nom."],
+        ["b1", "Tests de cas limites", "2 personnes, ids non triés, scores vides. Ajouter seulement."],
+        ["b2", "PR de groupe-a vers Maxence", "Les 6 tests de calcul passent. Avant mercredi soir."]
       ] }
   ],
   b: [
-    { key: "maxence", name: "Maxence", ini: "Mx", role: "Base de données",
-      files: ["logic.py : create_tables, set_affinity, get_affinities, save_draw"],
+    { key: "gb", name: "Groupe B", ini: "B", owners: ["Maxence", "Hugo", "Mats"], role: "Maxence, Hugo, Mats · tous ensemble, dans l'ordre",
+      files: ["logic.py : create_tables, set_affinity, get_affinities, save_draw", "page.py", "branche Maxence"],
       tasks: [
-        ["d1", "Lire les 4 tests base de données", "<code>missing_affinities_are_zero</code>, <code>set_affinity_replaces</code>, <code>score_must_be_between_0_and_3</code>, <code>cannot_rate_yourself</code>"],
-        ["d2", "Écrire create_tables", "Table <code>weighted_draw_affinities</code> : giver_id, receiver_id (REFERENCES participants ON DELETE CASCADE), score. <code>unique=[(\"giver_id\", \"receiver_id\")]</code>."],
-        ["d3", "Écrire set_affinity", "<code>ValueError</code> si score hors 0..3 ou giver = receiver. <code>insert(..., on_conflict=\"replace\")</code> remplace l'ancien score."],
-        ["d4", "Écrire get_affinities", "Toutes les paires ordonnées du groupe (4 personnes = 12 entrées), 0 si pas noté."],
-        ["d5", "Écrire save_draw", "Supprimer le tirage du groupe dans <code>assignments</code>, puis insérer les nouvelles paires."],
-        ["d6", "Commit + push sur Maxence", "Les 4 tests passent."]
-      ] },
-    { key: "hugo", name: "Hugo", ini: "H", role: "Page : noter les autres",
-      files: ["ui_rating.py"],
-      tasks: [
-        ["e1", "Lire 02_participants/page.py et le README des features", "<code>current_group(db)</code>, <code>current_participant(db)</code>, <code>import_module</code>."],
-        ["e2", "Cas vides avec st.info", "Pas de personne choisie dans la barre latérale, moins de 2 participants : un message clair, pas d'erreur."],
-        ["e3", "Sliders 0 à 3 pour chaque autre personne", "Le libellé dit ce que veut dire le score (0 = je ne connais pas, 3 = très bien). La valeur de départ vient de <code>get_affinities</code>."],
-        ["e4", "Bouton Enregistrer mes notes", "Appelle <code>set_affinity</code> pour chaque slider. Ne montre que les notes de la personne courante."],
-        ["e5", "Aller plus loin : satisfaction moyenne sans noms", "Si un tirage existe, afficher <code>average_satisfaction</code> en <code>st.metric</code>."],
-        ["e6", "Commit + push sur Maxence", "Seulement ui_rating.py."]
-      ] },
-    { key: "mats", name: "Mats", ini: "M", role: "Page organisateur + intégration",
-      files: ["ui_organizer.py", "page.py"],
-      tasks: [
-        ["f1", "Expander organisateur : heatmap des notes", "Tableau donneur × receveur à partir de <code>get_affinities</code>. Montre les notes, jamais le tirage."],
-        ["f2", "Graphique en barres : hasard / glouton / meilleur", "<code>random_score</code>, <code>total_score(greedy_draw)</code>, <code>total_score(best_draw)</code>. Au-delà de 8 personnes, st.info à la place de la barre « meilleur »."],
-        ["f3", "Bouton qui enregistre le tirage glouton", "Appelle <code>save_draw</code>. Affiche « Tirage enregistré », sans les paires."],
-        ["f4", "Lancer uv run pytest (tout le projet)", "Tout doit rester vert, pas seulement la feature 18."],
-        ["f5", "Ouvrir la page dans les 3 groupes de démo", "Aucune erreur, cas vides expliqués."],
-        ["f6", "PR finale de Maxence vers le dépôt du cours, avec une courte description", "Une fois groupe-a fusionnée. Avant jeudi 15:00."]
+        ["d1", "Lire ensemble les 4 tests de base de données", "Plus <code>app/features/README.md</code> et <code>02_participants/page.py</code> pour voir comment une page est faite."],
+        ["d2", "create_tables", "Table <code>weighted_draw_affinities</code> : giver_id, receiver_id (REFERENCES participants ON DELETE CASCADE), score. <code>unique=[(\"giver_id\", \"receiver_id\")]</code>."],
+        ["d3", "set_affinity", "<code>ValueError</code> si score hors 0..3 ou giver = receiver. <code>insert(..., on_conflict=\"replace\")</code>."],
+        ["d4", "get_affinities", "Toutes les paires ordonnées du groupe (4 personnes = 12 entrées), 0 si pas noté."],
+        ["d5", "save_draw", "Supprimer le tirage du groupe dans <code>assignments</code>, puis insérer les nouvelles paires."],
+        ["d6", "Page : cas vides avec st.info", "Pas de personne choisie, moins de 2 participants : un message clair, pas d'erreur."],
+        ["d7", "Page : noter les autres", "Un slider 0 à 3 par personne (0 = je ne connais pas, 3 = très bien), bouton Enregistrer. On ne voit que ses propres notes."],
+        ["d8", "Page organisateur : heatmap des notes", "Dans un <code>st.expander</code>. Les notes, jamais le tirage."],
+        ["d9", "Page organisateur : graphique hasard / glouton / meilleur", "Avec un faux <code>scores</code> au début, les vraies fonctions du groupe A une fois fusionnées. Au-delà de 8 personnes, st.info."],
+        ["e1", "Bouton qui enregistre le tirage glouton", "Appelle <code>save_draw</code>, affiche « Tirage enregistré », jamais les paires."],
+        ["e2", "Satisfaction moyenne sans noms (aller plus loin)", "<code>average_satisfaction</code> en <code>st.metric</code>, si un tirage existe."],
+        ["e3", "Fusionner groupe-a, uv run pytest, PR finale", "Tout le projet vert, la page ouverte dans les 3 groupes de démo, PR de Maxence vers le dépôt du cours avant jeudi 15:00."]
       ] }
   ]
 };
 
 const DOD = [
-  ["g1", "uv run pytest tests/test_18_weighted_draw.py : tout vert", "Paul"],
-  ["g2", "uv run pytest : tout le projet reste vert", "Mats"],
-  ["g3", "La page s'ouvre pour les 3 groupes de démo, sans erreur", "Hugo"],
-  ["g4", "Aucun secret ne fuit : personne ne voit qui offre à qui", "PE"],
-  ["g5", "Aucun changement hors du dossier et du fichier de test", "Maxence"],
-  ["g6", "Pull request ouverte, avec une courte description", "Mats"],
-  ["g7", "Démo de 5 min prête (contre-exemple d'Augustin + graphique)", "Augustin"]
+  ["g1", "uv run pytest tests/test_18_weighted_draw.py : tout vert", "Les deux groupes"],
+  ["g2", "uv run pytest : tout le projet reste vert", "Groupe B, après la fusion"],
+  ["g3", "La page s'ouvre pour les 3 groupes de démo, sans erreur", "Groupe B"],
+  ["g4", "Aucun secret ne fuit : personne ne voit qui offre à qui", "Groupe A relit la page du groupe B"],
+  ["g5", "Aucun changement hors du dossier et du fichier de test", "Les deux groupes"],
+  ["g6", "Pull request ouverte, avec une courte description", "Groupe B"],
+  ["g7", "Démo de 5 min prête (contre-exemple + graphique)", "Les 6"]
 ];
 
 let checks = {};          // taskId -> {done, by (prénom), at}
@@ -530,15 +495,15 @@ function build() {
   zg.style.cssText = "display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:14px;align-items:start";
   zg.append(personCard(PEOPLE.z[0]));
   const dod = { key: "dod", name: "Definition of Done", ini: "✓", owners: [], role: "Chaque ligne a un responsable qui la vérifie",
-    files: ["toute la feature"], tasks: DOD.map(([id, t, who]) => [id, t, "Vérifié par " + who]) };
+    files: ["toute la feature"], tasks: DOD.map(([id, t, who]) => [id, t, who]) };
   zg.append(personCard(dod));
   z.append(zg);
 
   const a = document.getElementById("lane-a");
-  a.append(laneHead("Groupe A", "Paul, Augustin, PE : les algorithmes", "Fonctions pures dans logic.py. Pas de base, pas de Streamlit. Testables tout de suite."));
+  a.append(laneHead("Groupe A", "Paul, Augustin, PE : les algorithmes", "Fonctions pures dans logic.py. Pas de base, pas de Streamlit. Une seule liste pour les 3, dans l'ordre."));
   PEOPLE.a.forEach(p => a.append(personCard(p)));
   const b = document.getElementById("lane-b");
-  b.append(laneHead("Groupe B", "Maxence, Hugo, Mats : la base et la page", "Base de données dans logic.py, page coupée en ui_rating.py (Hugo) et ui_organizer.py (Mats)."));
+  b.append(laneHead("Groupe B", "Maxence, Hugo, Mats : la base et la page", "Base de données dans logic.py, puis la page. Une seule liste pour les 3, dans l'ordre."));
   PEOPLE.b.forEach(p => b.append(personCard(p)));
 
   document.addEventListener("change", e => {
@@ -615,7 +580,7 @@ function showMe() {
 }
 document.querySelectorAll(".names button").forEach(b => b.addEventListener("click", () => setMe(b.dataset.name)));
 document.getElementById("switch").addEventListener("click", showPicker);
-document.getElementById("goto").addEventListener("click", () => document.querySelector(".person.mine:not([data-owners='PE,Maxence'])")?.scrollIntoView({ behavior: "smooth", block: "start" }) || document.querySelector(".person.mine")?.scrollIntoView({ behavior: "smooth" }));
+document.getElementById("goto").addEventListener("click", () => document.querySelector(".lanes .person.mine")?.scrollIntoView({ behavior: "smooth", block: "start" }) || document.querySelector(".person.mine")?.scrollIntoView({ behavior: "smooth" }));
 
 function start() {
   build();
