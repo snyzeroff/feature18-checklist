@@ -9,19 +9,22 @@
 <style>
 /* Layout: one column; sticky progress header, a shared "step 0" strip, then two group lanes (one shared task list per group). Single black theme, no colour accents. */
 :root {
-  --bg: #0a0a0a;
-  --surface: #111111;
-  --fg: #ededed;
-  --muted: #8b8b8b;
-  --line: #242424;
-  --pine: #f2f2f2;        /* group A: white */
-  --pine-soft: #161616;
-  --berry: #a8a8a8;       /* group B: grey */
-  --berry-soft: #141414;
-  --gold: #d6d6d6;
-  --gold-soft: #181818;
-  --done: #f2f2f2;
-  --code-bg: #1b1b1b;
+  --bg: #0b0c10;
+  --surface: #12141a;
+  --fg: #e6e8ee;
+  --muted: #8a90a0;
+  --line: #23262f;
+  --pine: #7aa2f7;        /* group A: blue */
+  --pine-soft: #141b2b;
+  --berry: #e0a35e;       /* group B: amber */
+  --berry-soft: #221b12;
+  --gold: #c0c4d0;
+  --gold-soft: #171920;
+  --done: #ffffff;        /* checked: white, no green */
+  --code: #c49bf7;        /* code: violet */
+  --code-bg: #1a1c25;
+  --tip: #7dcfff;         /* tips: cyan */
+  --bad: #f7768e;         /* forbidden: red */
   --f-display: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
   --f-body: "Inter", "Segoe UI", system-ui, sans-serif;
   --f-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
@@ -38,7 +41,7 @@ h1 { font-size: 2rem; font-weight: 700 }
 h2 { font-size: 1.3rem }
 h3 { font-size: 1.05rem }
 p { margin: 0 }
-code { font: 0.86em var(--f-mono); background: var(--code-bg); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere }
+code { font: 0.86em var(--f-mono); color: var(--code); background: var(--code-bg); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere }
 .muted { color: var(--muted) }
 .eyebrow { font: 600 0.72rem var(--f-body); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted) }
 
@@ -48,7 +51,7 @@ header.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; b
 .sync { font-size: 0.8rem; display: inline-flex; gap: 6px; align-items: center; color: var(--muted) }
 .sync i { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); display: inline-block }
 .sync[data-state="live"] i { background: var(--done) }
-.sync[data-state="local"] i { background: var(--muted); outline: 1px solid var(--fg) }
+.sync[data-state="local"] i { background: var(--berry) }
 .bars { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px }
 .bar { display: grid; gap: 4px; font-size: 0.8rem }
 .bar .lbl { display: flex; justify-content: space-between; gap: 8px; font-variant-numeric: tabular-nums }
@@ -62,7 +65,7 @@ header.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; b
 .rule b { font-family: var(--f-display) }
 .timeline { display: flex; flex-wrap: wrap; gap: 8px }
 .when { font-size: 0.82rem; border: 1px solid var(--line); background: var(--gold-soft); color: var(--fg); border-radius: 999px; padding: 3px 10px }
-.when b { color: var(--fg) }
+.when b { color: var(--tip) }
 
 .lanes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; align-items: start }
 .lane { display: grid; gap: 14px; min-width: 0 }
@@ -113,13 +116,14 @@ th { font: 600 0.72rem var(--f-body); letter-spacing: 0.06em; text-transform: up
 .names button { font: 600 0.95rem var(--f-display); padding: 12px 6px; border-radius: 8px; cursor: pointer;
   border: 1px solid var(--line); background: var(--bg); color: var(--fg) }
 .names button.a { border-color: var(--pine) } .names button.b { border-color: var(--berry) }
-.names button:hover, .names button:focus-visible { background: var(--fg); color: var(--bg); outline: none }
+.names button.a:hover, .names button.a:focus-visible { background: var(--pine); color: var(--bg); outline: none }
+.names button.b:hover, .names button.b:focus-visible { background: var(--berry); color: var(--bg); outline: none }
 .tests { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; min-width: 0 }
 .tests > summary { cursor: pointer; padding: 16px; display: grid; gap: 4px; list-style: none }
 .tests > summary::-webkit-details-marker { display: none }
 .tests > summary .sum-title { font: 700 1.2rem var(--f-display) }
-.tests > summary .sum-title::before { content: "B8  "; color: var(--pine) }
-.tests[open] > summary .sum-title::before { content: "BE  " }
+.tests > summary .sum-title::before { content: "▸ "; color: var(--pine) }
+.tests[open] > summary .sum-title::before { content: "▾ " }
 .tests > summary .sum-hint { font-size: 0.82rem }
 .tests summary:focus-visible { outline: 2px solid var(--pine); outline-offset: 2px }
 .tests-body { padding: 0 16px 18px; display: grid; gap: 12px; max-width: 80ch }
@@ -132,13 +136,16 @@ th { font: 600 0.72rem var(--f-body); letter-spacing: 0.06em; text-transform: up
 details.test { border: 1px solid var(--line); border-radius: 8px; min-width: 0 }
 details.test > summary { cursor: pointer; padding: 10px 12px; display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; justify-content: space-between }
 details.test > summary code { background: none; padding: 0; font-weight: 500 }
+details.test .fn { color: var(--code) !important }
 details.test .fn { font: 500 0.75rem var(--f-mono); color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 1px 8px }
 details.test[open] > summary { border-bottom: 1px solid var(--line) }
 .test-body { padding: 12px; display: grid; gap: 8px }
 .test-body ul { margin: 0; padding-left: 20px }
 .calc { font: 0.85rem/1.7 var(--f-mono); background: var(--code-bg); border-radius: 6px; padding: 10px 12px; overflow-x: auto }
-.calc .bad { color: var(--fg); font-weight: 600; text-decoration: underline }
-.tip { font-size: 0.88rem; border-left: 2px solid var(--muted); background: var(--gold-soft); border-radius: 6px; padding: 8px 10px }
+.calc .bad { color: var(--bad); font-weight: 600 }
+.calc b { color: var(--done) }
+.tip b { color: var(--tip) }
+.tip { font-size: 0.88rem; border-left: 2px solid var(--tip); background: var(--gold-soft); border-radius: 6px; padding: 8px 10px }
 @media (max-width: 600px) { .vocab dl { grid-template-columns: minmax(0, 1fr) } .vocab dd { margin-bottom: 6px } }
 @media (max-width: 820px) { .lanes { grid-template-columns: minmax(0, 1fr) } .bars { grid-template-columns: minmax(0, 1fr) } h1 { font-size: 1.6rem } }
 @media (prefers-reduced-motion: reduce) { .fill { transition: none } }
@@ -158,7 +165,7 @@ details.test[open] > summary { border-bottom: 1px solid var(--line) }
       <button class="b" data-name="Hugo">Hugo</button>
       <button class="b" data-name="Mats">Mats</button>
     </div>
-    <p class="muted" style="font-size:.8rem">Vert : groupe A · rose : groupe B</p>
+    <p class="muted" style="font-size:.8rem">Bleu : groupe A · orange : groupe B</p>
   </div>
 </div>
 
